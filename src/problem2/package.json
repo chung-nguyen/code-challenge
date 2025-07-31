@@ -12,7 +12,8 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "daisyui": "^5.0.50",
-    "graphql-request": "^7.2.0",
+    "ethers": "^6.15.0",
+    "lucide-react": "^0.535.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwindcss": "^4.1.11"
@@ -27,7 +28,6 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
-    "lucide-react": "^0.535.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
     "vite": "^7.0.4"

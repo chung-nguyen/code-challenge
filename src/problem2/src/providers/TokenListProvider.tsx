@@ -13,7 +13,7 @@ type PancakeSwapV2EndpointTokensResponse = {
   }[];
 };
 
-type TokenMetadata = {
+export type TokenMetadata = {
   address: string;
   name: string;
   symbol: string;
