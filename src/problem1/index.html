@@ -10,34 +10,41 @@
 </head>
 
 <body>
-  <form onsubmit="return !1">
-    <div>
-      <label>Sum from 1 to N</label>
-      <input id="input-amount" />
+  <div>
+    <form onsubmit="return !1">
+      <div>
+        <label>Sum from 1 to N</label>
+        <input id="input-amount" />
 
-      <button type="button" onclick="onButtonClicked()">OK</button>
-    </div>
+        <button type="button" onclick="onButtonClicked()">OK</button>
+      </div>
 
-    <div>
-      <label>Result A</label>
-      <input id="input-result-a" readonly />
-    </div>
+      <div>
+        <label>Result A</label>
+        <input id="input-result-a" readonly />
+      </div>
 
-    <div>
-      <label>Result B</label>
-      <input id="input-result-b" readonly />
-    </div>
+      <div>
+        <label>Result B</label>
+        <input id="input-result-b" readonly />
+      </div>
 
-    <div>
-      <label>Result C</label>
-      <input id="input-result-c" readonly />
-    </div>
+      <div>
+        <label>Result C</label>
+        <input id="input-result-c" readonly />
+      </div>
 
-    <div>
-      <label>Result D</label>
-      <input id="input-result-d" readonly />
-    </div>
-  </form>
+      <div>
+        <label>Result D</label>
+        <input id="input-result-d" readonly />
+      </div>
+    </form>
+  </div>
+
+  <div>
+    <p>* Solution D requires running a local HTTP server to execute the <b>worker.js</b> thread.</p>
+    <p>Example: run `npx http-server` in the same location as `index.html`.</p>
+  </div>
   
   <script>
     function onButtonClicked() {
