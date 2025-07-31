@@ -1,0 +1,54 @@
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Three ways to sum to n</title>
+
+  <!-- You may add more stuff here -->
+  <link href="style.css" rel="stylesheet" />
+  <script src="index.js"></script>
+</head>
+
+<body>
+  <form onsubmit="return !1">
+    <div>
+      <label>Sum from 1 to N</label>
+      <input id="input-amount" />
+
+      <button type="button" onclick="onButtonClicked()">OK</button>
+    </div>
+
+    <div>
+      <label>Result A</label>
+      <input id="input-result-a" readonly />
+    </div>
+
+    <div>
+      <label>Result B</label>
+      <input id="input-result-b" readonly />
+    </div>
+
+    <div>
+      <label>Result C</label>
+      <input id="input-result-c" readonly />
+    </div>
+
+    <div>
+      <label>Result D</label>
+      <input id="input-result-d" readonly />
+    </div>
+  </form>
+  
+  <script>
+    function onButtonClicked() {
+      var amount = parseInt(document.getElementById('input-amount').value);
+
+      document.getElementById('input-result-a').value = sum_to_n_a(amount);
+      document.getElementById('input-result-b').value = sum_to_n_b(amount);
+      document.getElementById('input-result-c').value = sum_to_n_c(amount);
+      sum_to_n_d(amount).then((result) => (document.getElementById('input-result-d').value = result));
+    }
+  </script>
+</body>
+
+</html>
