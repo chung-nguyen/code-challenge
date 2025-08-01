@@ -32,6 +32,9 @@ const TokenSelectItem = (props: TokenSelectItemProps) => {
   );
 };
 
+/**
+ * This modal dialog shows the list of tokens to be selected. It also has a search bar to find token by symbol or address.
+ */
 export const TokenSelectModal = (props: TokenSelectModalProps) => {
   const { open, close, select } = props;
 
