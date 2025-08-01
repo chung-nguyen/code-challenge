@@ -6,6 +6,7 @@ import { TokenSwapActionPanel } from "@/components/TokenSwapActionPanel";
 import { TokenSwapInputPanel } from "@/components/TokenSwapInputPanel";
 import { TokenListProvider } from "@/providers/TokenListProvider";
 import { TokenSwapFormProvider } from "@/providers/TokenSwapFormProvider";
+import { TokenSwapResultModal } from "@/components/TokenSwapResultModal";
 
 export const TokenSwapPage = () => {  
   return (
@@ -16,6 +17,8 @@ export const TokenSwapPage = () => {
             <TokenSwapInputPanel />
             <TokenSwapActionPanel />
           </div>
+
+          <TokenSwapResultModal />
         </TokenSwapFormProvider>
       </TokenSwapProvider>
     </TokenListProvider>

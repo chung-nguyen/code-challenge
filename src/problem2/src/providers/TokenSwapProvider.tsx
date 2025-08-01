@@ -22,16 +22,18 @@ const PAIR_ABI = [
 const ROUTER_ADDRESS = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
 const FACTORY_ADDRESS = "0xca143ce32fe78f1f7019d7d551a6402fc5350c73"; // PancakeSwap V2 factory
 
-type TokenSwapResultType = {
+export type TokenSwapResultType = {
   amount: number;
   priceImpact: number;
   fee: number;
   realRate: number;
+  error?: Error;
 }
 
 type TokenSwapContextType = {
   getQuoteOut: (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountInHuman: string) => Promise<TokenSwapResultType>;
   getQuoteIn: (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountOutHuman: string) => Promise<TokenSwapResultType>;
+  swap: (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountInHuman: string) => Promise<TokenSwapResultType>;
 };
 
 interface TokenSwapProviderProps extends PropsWithChildren {
@@ -47,6 +49,7 @@ const DEFAULT_TOKEN_SWAP_RESULT = {
 const TokenSwapContext = createContext<TokenSwapContextType>({
   getQuoteOut: () => Promise.resolve(DEFAULT_TOKEN_SWAP_RESULT),
   getQuoteIn: () => Promise.resolve(DEFAULT_TOKEN_SWAP_RESULT),
+  swap: () => Promise.resolve(DEFAULT_TOKEN_SWAP_RESULT)
 });
 
 export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
@@ -55,6 +58,8 @@ export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
   const providerRef = useRef(new JsonRpcProvider(BSC_RPC_URL));
   const routerRef = useRef(new Contract(ROUTER_ADDRESS, ROUTER_ABI, providerRef.current));
   const factoryRef = useRef(new Contract(FACTORY_ADDRESS, FACTORY_ABI, providerRef.current));
+
+  const fakeErrorCountRef = useRef(0);
 
   const getQuoteOut = async (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountInHuman: string): Promise<TokenSwapResultType> => {
     const provider = providerRef.current;
@@ -162,8 +167,24 @@ export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
     }
   }
 
+  const swap = async (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountOutHuman: string): Promise<TokenSwapResultType> => {
+    // TODO: actually implementation here
+    // ...
+
+    ++fakeErrorCountRef.current;
+    if ((fakeErrorCountRef.current % 2) === 0) {
+      // Simulate 3 seconds wait before error
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      throw new Error('Insufficient balance');
+    }
+
+    // Fake the swap using quote...
+    return getQuoteOut(tokenIn, tokenOut, amountOutHuman);
+  }
+
   return (
-    <TokenSwapContext.Provider value={{ getQuoteIn, getQuoteOut }}>
+    <TokenSwapContext.Provider value={{ getQuoteIn, getQuoteOut, swap }}>
       {children}
     </TokenSwapContext.Provider>
   )

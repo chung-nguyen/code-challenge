@@ -1,6 +1,13 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type PropsWithChildren } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+  type PropsWithChildren,
+} from "react";
 
-import { useTokenSwap } from "./TokenSwapProvider";
+import { useTokenSwap, type TokenSwapResultType } from "./TokenSwapProvider";
 import { useTokenList } from "./TokenListProvider";
 import { useDebounce } from "@/lib/Debouce";
 
@@ -19,8 +26,13 @@ export type TokenSwapFormContextType = {
   swapFee: number;
   feeSaved: number;
   priceImpact: number;
+  isProcessing: boolean;
+  openResultModal: TokenSwapResultType | null;
+  isSuccess: boolean;
   setFromEntryValues: (symbol: string, amount: number) => void;
   setToEntryValues: (symbol: string, amount: number) => void;
+  setIsProcessing: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenResultModal: React.Dispatch<React.SetStateAction<TokenSwapResultType | null>>;
 };
 
 const DEFAULT_SWAP_FORM = {
@@ -32,8 +44,13 @@ const DEFAULT_SWAP_FORM = {
   swapFee: 0,
   priceImpact: 0,
   feeSaved: 0,
+  isProcessing: false,
+  openResultModal: null,
+  isSuccess: false,
   setFromEntryValues: () => {},
   setToEntryValues: () => {},
+  setIsProcessing: () => {},
+  setOpenResultModal: () => {},
 };
 
 const TokenSwapFormContext = createContext<TokenSwapFormContextType>(DEFAULT_SWAP_FORM);
@@ -52,6 +69,9 @@ export const TokenSwapFormProvider = (props: PropsWithChildren) => {
   const [swapFee, setSwapFee] = useState(DEFAULT_SWAP_FORM.swapFee);
   const [priceImpact, setPriceImpact] = useState(DEFAULT_SWAP_FORM.priceImpact);
   const [feeSaved, setFeeSaved] = useState(DEFAULT_SWAP_FORM.feeSaved);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [openResultModal, setOpenResultModal] = useState<TokenSwapResultType | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const getAmountCallId = useRef(0);
 
@@ -92,7 +112,7 @@ export const TokenSwapFormProvider = (props: PropsWithChildren) => {
     setFromEntry({ symbol, amount, isLoading: false });
     setToEntry({ symbol: toEntry.symbol, amount: 0, isLoading: amount > 0 });
     const currentCallId = ++getAmountCallId.current;
-    if (amount > 0) {      
+    if (amount > 0) {
       debouncedGetAmount(currentCallId, symbol, toEntry.symbol, amount, 0);
     } else {
       setExchangeRate(0);
@@ -105,7 +125,7 @@ export const TokenSwapFormProvider = (props: PropsWithChildren) => {
     setToEntry({ symbol, amount, isLoading: false });
     setFromEntry({ symbol: fromEntry.symbol, amount: 0, isLoading: amount > 0 });
     const currentCallId = ++getAmountCallId.current;
-    if (amount > 0) {      
+    if (amount > 0) {
       debouncedGetAmount(currentCallId, fromEntry.symbol, symbol, 0, amount);
     } else {
       setExchangeRate(0);
@@ -116,7 +136,23 @@ export const TokenSwapFormProvider = (props: PropsWithChildren) => {
 
   return (
     <TokenSwapFormContext.Provider
-      value={{ fromEntry, toEntry, nativeToken, exchangeRate, swapFee, priceImpact, slipTolerance, feeSaved, setFromEntryValues, setToEntryValues }}
+      value={{
+        fromEntry,
+        toEntry,
+        nativeToken,
+        exchangeRate,
+        swapFee,
+        priceImpact,
+        slipTolerance,
+        feeSaved,
+        isProcessing,
+        isSuccess,
+        openResultModal,
+        setFromEntryValues,
+        setToEntryValues,
+        setIsProcessing,
+        setOpenResultModal,
+      }}
     >
       {children}
     </TokenSwapFormContext.Provider>
