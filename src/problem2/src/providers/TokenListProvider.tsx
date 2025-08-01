@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react';
+import { createContext, useContext, useEffect, useState, type PropsWithChildren } from "react";
 
-const PANCAKESWAP_TOKENS_ENDPOINT = 'https://tokens.pancakeswap.finance/pancakeswap-extended.json';
+const BSC_CHAIN_ID = 56;
+const PANCAKESWAP_TOKENS_ENDPOINT = "https://tokens.pancakeswap.finance/pancakeswap-extended.json";
 
 type PancakeSwapV2EndpointTokensResponse = {
   tokens: {
@@ -45,16 +46,18 @@ export const TokenListProvider = (props: PropsWithChildren) => {
       try {
         const response = await fetch(PANCAKESWAP_TOKENS_ENDPOINT);
         const data: PancakeSwapV2EndpointTokensResponse = await response.json();
-        const result: TokenMetadata[] = data.tokens.map((token: any) => ({
-          address: token.address,
-          name: token.name,
-          symbol: token.symbol,
-          decimals: token.decimals,
-          logoURI: token.logoURI
-        }));
+        const result: TokenMetadata[] = data.tokens
+          .filter((token) => token.chainId === BSC_CHAIN_ID)
+          .map((token) => ({
+            address: token.address,
+            name: token.name,
+            symbol: token.symbol,
+            decimals: token.decimals,
+            logoURI: token.logoURI,
+          }));
         setTokens(result);
       } catch (err) {
-        setError('Failed to fetch tokens');
+        setError("Failed to fetch tokens");
         console.error(err);
       } finally {
         setLoading(false);
@@ -64,11 +67,7 @@ export const TokenListProvider = (props: PropsWithChildren) => {
     fetchTokens();
   }, []);
 
-  return (
-    <TokenListContext.Provider value={{ tokens, loading, error }}>
-      {children}
-    </TokenListContext.Provider>
-  )
+  return <TokenListContext.Provider value={{ tokens, loading, error }}>{children}</TokenListContext.Provider>;
 };
 
 export const useTokenList = () => useContext(TokenListContext);

@@ -83,23 +83,20 @@ export const TokenSwapFormProvider = (props: PropsWithChildren) => {
       if (tokenIn && tokenOut) {
         if (amountIn > 0) {
           const result = await tokenSwap.getQuoteOut(tokenIn, tokenOut, String(amountIn));
-
           if (currentCallId === getAmountCallId.current) {
             setToEntry({ symbol: toEntry.symbol, amount: result.amount, isLoading: false });
-          }
-
-          setExchangeRate(result.realRate);
-          setSwapFee(result.fee);
-          setPriceImpact(result.priceImpact);
+            setExchangeRate(result.realRate);
+            setSwapFee(result.fee);
+            setPriceImpact(result.priceImpact);
+          }          
         } else if (amountOut > 0) {
           const result = await tokenSwap.getQuoteIn(tokenIn, tokenOut, String(amountOut));
           if (currentCallId === getAmountCallId.current) {
             setFromEntry({ symbol: fromEntry.symbol, amount: result.amount, isLoading: false });
-          }
-
-          setExchangeRate(result.realRate);
-          setSwapFee(result.fee);
-          setPriceImpact(result.priceImpact);
+            setExchangeRate(result.realRate);
+            setSwapFee(result.fee);
+            setPriceImpact(result.priceImpact);
+          }          
         }
       }
     },
