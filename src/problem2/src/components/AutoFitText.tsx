@@ -7,6 +7,10 @@ interface AutoFitTextProps {
   className?: string;
 }
 
+/**
+ * This component display a text in a region that is constraint to a width. The text will automatically resized between min and max font size to fit the region.
+ * Better open source solution is `react-fitty` but this component is light-weight and more importantly, DIY.
+ */
 export const AutoFitText: React.FC<AutoFitTextProps> = ({
   text,
   minFontSize = 10,

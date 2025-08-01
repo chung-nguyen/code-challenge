@@ -2,7 +2,6 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useMemo,
   useRef,
   useState,
   type PropsWithChildren,
@@ -27,6 +26,7 @@ export type TokenSwapFormDataType = {
   swapFee: number;
   feeSaved: number;
   priceImpact: number;
+  hasLiquidity: boolean;
 };
 
 export type TokenSwapFormContextType = {
@@ -49,6 +49,7 @@ const DEFAULT_SWAP_CONTEXT = {
     swapFee: 0,
     priceImpact: 0,
     feeSaved: 0,
+    hasLiquidity: true,
   },
   isProcessing: false,
   swapResult: null,
@@ -96,19 +97,21 @@ export const TokenSwapFormProvider = (props: PropsWithChildren) => {
                 exchangeRate: result.realRate,
                 swapFee: result.fee,
                 priceImpact: result.priceImpact,
+                hasLiquidity: true,
               }));
             }
           } catch (ex) {
             console.error(ex);
-            if (currentCallId === getAmountCallId.current) {              
+            if (currentCallId === getAmountCallId.current) {
               setFormData((prev) => ({
                 ...prev,
                 toEntry: { symbol: tokenOut.symbol, amount: 0, isLoading: false },
                 exchangeRate: 0,
                 swapFee: 0,
                 priceImpact: 0,
+                hasLiquidity: false,
               }));
-            }            
+            }
           }
         } else if (amountOut > 0) {
           try {
@@ -120,6 +123,7 @@ export const TokenSwapFormProvider = (props: PropsWithChildren) => {
                 exchangeRate: result.realRate,
                 swapFee: result.fee,
                 priceImpact: result.priceImpact,
+                hasLiquidity: true,
               }));
             }
           } catch (ex) {
@@ -131,6 +135,7 @@ export const TokenSwapFormProvider = (props: PropsWithChildren) => {
                 exchangeRate: 0,
                 swapFee: 0,
                 priceImpact: 0,
+                hasLiquidity: false,
               }));
             }
           }

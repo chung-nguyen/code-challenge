@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import { TokenSwapProvider } from "@/providers/TokenSwapProvider";
 
 import { TokenSwapActionPanel } from "@/components/TokenSwapActionPanel";

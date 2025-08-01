@@ -1,4 +1,4 @@
-import { useMemo, useState, type MouseEventHandler } from "react";
+import { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 import { useTokenSwapForm } from "@/providers/TokenSwapFormProvider";
@@ -9,6 +9,9 @@ import { shortenNumber } from "@/lib/Helper";
 import { useTokenSwap } from "@/providers/TokenSwapProvider";
 import { useTokenList } from "@/providers/TokenListProvider";
 
+/**
+ * This is the bottom panel of the 2 main panels in this demo.
+ */
 export const TokenSwapActionPanel = () => {
   const formContext = useTokenSwapForm();
   const tokenSwap = useTokenSwap();
@@ -33,6 +36,7 @@ export const TokenSwapActionPanel = () => {
         result.openModal = true;
         formContext.setOpenResultModal(result);
 
+        // Reset the amounts after a successful swap
         formContext.setFromEntryValues(formData.fromEntry.symbol, 0);
         formContext.setToEntryValues(formData.toEntry.symbol, 0);
       } else {
@@ -41,9 +45,11 @@ export const TokenSwapActionPanel = () => {
     } catch (ex) {
       console.error(ex);
 
+      // Set the dummy data to show error result
       formContext.setOpenResultModal({
         tokenIn,
         tokenOut,
+        fromAmount: 0,
         amount: 0,
         priceImpact: 0,
         fee: 0,
@@ -64,7 +70,7 @@ export const TokenSwapActionPanel = () => {
       return <span className="loading loading-bars loading-xs" />;
     } else if (hasAmountEntry) {
       return "Swap";
-    } else if (formContext.formData.exchangeRate <= 0 && formContext.formData.swapFee <= 0) {
+    } else if (!formContext.formData.hasLiquidity) {
       return "No liquidity";
     } else {
       return "Please enter amount";

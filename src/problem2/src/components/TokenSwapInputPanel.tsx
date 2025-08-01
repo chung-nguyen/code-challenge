@@ -3,10 +3,14 @@ import { useTokenSwapForm } from "@/providers/TokenSwapFormProvider";
 
 import { TokenSwapInput } from "./TokenSwapInput";
 
+/**
+ * This is the top panel of the 2 panels of the demo.
+ */
 export const TokenSwapInputPanel = () => {
   const formContext = useTokenSwapForm();
   const tokensList = useTokenList();
 
+  // Show a skeleton if data is not yet available
   if (tokensList.error || tokensList.loading) {
     return (
       <div className="card bg-base-300 w-full p-4 gap-2 items-center">

@@ -23,6 +23,7 @@ const FACTORY_ADDRESS = "0xca143ce32fe78f1f7019d7d551a6402fc5350c73"; // Pancake
 export type TokenSwapResultType = {
   tokenIn: TokenMetadata | null;
   tokenOut: TokenMetadata | null;
+  fromAmount: number;
   amount: number;
   priceImpact: number;
   fee: number;
@@ -42,6 +43,7 @@ interface TokenSwapProviderProps extends PropsWithChildren {}
 const DEFAULT_TOKEN_SWAP_RESULT = {
   tokenIn: null,
   tokenOut: null,
+  fromAmount: 0,
   amount: 0,
   priceImpact: 0,
   fee: 0,
@@ -117,6 +119,7 @@ export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
       tokenOut,
       priceImpact,
       realRate,
+      fromAmount: Number(amountInHuman),
       amount: Number(amountOutHuman),
       fee: Number(feeAmountHuman),
     };
@@ -176,6 +179,7 @@ export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
       tokenOut,
       priceImpact,
       realRate,
+      fromAmount: Number(amountOutHuman),
       amount: Number(amountInHuman),
       fee: Number(feeAmountHuman),
     };

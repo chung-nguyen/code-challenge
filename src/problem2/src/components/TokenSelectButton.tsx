@@ -9,6 +9,9 @@ type TokenSelectButtonProps = {
   setSymbol: (symbol: string) => void;
 } & React.HTMLAttributes<HTMLDivElement>;
 
+/**
+ * This is the select token button that is shown above the amount input.
+ */
 export const TokenSelectButton = (props: TokenSelectButtonProps) => {
   const { symbol, setSymbol, ...rest } = props;
 

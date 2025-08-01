@@ -1,4 +1,4 @@
-import { ArrowLeftRight, ChevronDown, RefreshCw } from "lucide-react";
+import { ArrowLeftRight, RefreshCw } from "lucide-react";
 import { FetchedValueLabel } from "./FetchedValueLabel";
 
 type TokenSwapRateLabelProps = {
@@ -8,6 +8,9 @@ type TokenSwapRateLabelProps = {
   loading: boolean;
 } & React.HTMLAttributes<HTMLDivElement>;
 
+/**
+ * The swap rate label underneath the action button.
+ */
 export const TokenSwapRateLabel = (props: TokenSwapRateLabelProps) => {
   const { fromSymbol, toSymbol, exchangeRate, loading, ...rest } = props;
 

@@ -1,5 +1,8 @@
 import { AutoFitText } from "./AutoFitText";
 
+/**
+ * This component show a text or a loading dots if its value is being loaded.
+ */
 type FetchedValueLabelProps = {
   loading: boolean;
   value: string | number;
