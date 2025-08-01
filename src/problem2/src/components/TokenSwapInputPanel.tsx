@@ -19,12 +19,12 @@ export const TokenSwapInputPanel = () => {
     <div className="card bg-base-300 w-full p-4 gap-2">
       <span>From</span>
       <TokenSwapInput
-        entry={formContext.fromEntry}
+        entry={formContext.formData.fromEntry}
         setEntry={(entry) => formContext.setFromEntryValues(entry.symbol, entry.amount)}
       />
       <span>To</span>
       <TokenSwapInput
-        entry={formContext.toEntry}
+        entry={formContext.formData.toEntry}
         setEntry={(entry) => formContext.setToEntryValues(entry.symbol, entry.amount)}
       />
 

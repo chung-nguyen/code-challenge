@@ -14,23 +14,26 @@ export const TokenSwapActionPanel = () => {
   const tokenSwap = useTokenSwap();
   const tokensList = useTokenList();
 
+  const formData = formContext.formData;
+
   const [expandDetails, setExpandDetails] = useState(false);
 
-  const isLoading = formContext.fromEntry.isLoading || formContext.toEntry.isLoading;
+  const isLoading = formData.fromEntry.isLoading || formData.toEntry.isLoading;
 
   const onActionButtonClicked = async (evt: React.MouseEvent<HTMLButtonElement>) => {
     evt.preventDefault();
     formContext.setIsProcessing(true);
-    try {
-      const tokenIn = tokensList.tokens.find((tk) => tk.symbol === formContext.fromEntry.symbol);
-      const tokenOut = tokensList.tokens.find((tk) => tk.symbol === formContext.toEntry.symbol);
 
-      if (tokenIn && tokenOut && formContext.fromEntry.amount > 0) {
-        const result = await tokenSwap.swap(tokenIn, tokenOut, String(formContext.fromEntry.amount));
+    const tokenIn = tokensList.tokens.find((tk) => tk.symbol === formData.fromEntry.symbol) || null;
+    const tokenOut = tokensList.tokens.find((tk) => tk.symbol === formData.toEntry.symbol) || null;
+
+    try {      
+      if (tokenIn && tokenOut && formData.fromEntry.amount > 0) {
+        const result = await tokenSwap.swap(tokenIn, tokenOut, String(formData.fromEntry.amount));
         formContext.setOpenResultModal(result);
 
-        formContext.setFromEntryValues(formContext.fromEntry.symbol, 0);
-        formContext.setToEntryValues(formContext.toEntry.symbol, 0);
+        formContext.setFromEntryValues(formData.fromEntry.symbol, 0);
+        formContext.setToEntryValues(formData.toEntry.symbol, 0);
       } else {
         throw new Error("Invalid inputs");
       }
@@ -38,6 +41,8 @@ export const TokenSwapActionPanel = () => {
       console.error(ex);
 
       formContext.setOpenResultModal({
+        tokenIn,
+        tokenOut,
         amount: 0,
         priceImpact: 0,
         fee: 0,
@@ -49,14 +54,16 @@ export const TokenSwapActionPanel = () => {
     }
   };
 
-  const hasAmountEntry = formContext.fromEntry.amount > 0 && formContext.toEntry.amount > 0;
+  const hasAmountEntry = formData.fromEntry.amount > 0 && formData.toEntry.amount > 0;
   const isButtonActive = !(formContext.isProcessing || !hasAmountEntry || isLoading);
 
   let buttonLabel = useMemo(() => {
-    if (formContext.isProcessing || formContext.fromEntry.isLoading || formContext.toEntry.isLoading) {
+    if (formContext.isProcessing || formData.fromEntry.isLoading || formData.toEntry.isLoading) {
       return <span className="loading loading-bars loading-xs" />;
     } else if (hasAmountEntry) {
       return "Swap";
+    } else if (formContext.formData.exchangeRate <= 0 && formContext.formData.swapFee <= 0) {
+      return "No liquidity";
     } else {
       return "Please enter amount";
     }
@@ -70,9 +77,9 @@ export const TokenSwapActionPanel = () => {
 
       <div className="flex items-center">
         <TokenSwapRateLabel
-          fromSymbol={formContext.fromEntry.symbol}
-          toSymbol={formContext.toEntry.symbol}
-          exchangeRate={shortenNumber(formContext.exchangeRate, 18, 6)}
+          fromSymbol={formData.fromEntry.symbol}
+          toSymbol={formData.toEntry.symbol}
+          exchangeRate={shortenNumber(formData.exchangeRate, 18, 6)}
           loading={isLoading}
         />
         <div className="flex-1" />
@@ -81,9 +88,9 @@ export const TokenSwapActionPanel = () => {
           <FetchedValueLabel
             className="text-base-content text-right max-w-32"
             loading={isLoading}
-            value={shortenNumber(formContext.swapFee, 18, 6)}
+            value={shortenNumber(formData.swapFee, 18, 6)}
           />
-          {formContext.fromEntry.symbol}
+          {formData.fromEntry.symbol}
         </div>
         <ChevronDown
           className={`cursor-pointer transition-transform duration-300 ${expandDetails ? "rotate-180" : "rotate-0"}`}
@@ -98,19 +105,19 @@ export const TokenSwapActionPanel = () => {
             <FetchedValueLabel
               className="text-base-content text-right max-w-64"
               loading={isLoading}
-              value={shortenNumber(formContext.toEntry.amount, 18, 6)}
+              value={shortenNumber(formData.toEntry.amount, 18, 6)}
             />
 
             <span className="font-semibold text-base-content">Price Impact</span>
             <FetchedValueLabel
               className="text-base-content text-right max-w-64"
               loading={isLoading}
-              value={shortenNumber(formContext.priceImpact, 18, 6)}
+              value={shortenNumber(formData.priceImpact, 18, 6)}
             />
 
             <span className="font-semibold text-base-content">Slippage Tolerance</span>
             <span className="text-base-content text-right max-w-64">
-              {shortenNumber(formContext.slipTolerance, 18, 6)}%
+              {shortenNumber(formData.slipTolerance, 18, 6)}%
             </span>
 
             <span className="font-semibold text-base-content">Trading Fee</span>
@@ -118,7 +125,7 @@ export const TokenSwapActionPanel = () => {
             <FetchedValueLabel
               className="text-base-content text-right max-w-64"
               loading={isLoading}
-              value={shortenNumber(formContext.swapFee, 18, 6) + " " + formContext.fromEntry.symbol}
+              value={shortenNumber(formData.swapFee, 18, 6) + " " + formData.fromEntry.symbol}
             />
           </div>
         </div>

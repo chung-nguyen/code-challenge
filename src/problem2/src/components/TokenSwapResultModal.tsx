@@ -5,6 +5,7 @@ import { useTokenSwapForm } from "@/providers/TokenSwapFormProvider";
 
 export const TokenSwapResultModal = () => {
   const formContext = useTokenSwapForm();
+  const formData = formContext.formData;
   const isOpen = !!formContext.openResultModal;  
   const swapResult = formContext.openResultModal;
   const success = !swapResult?.error;
@@ -52,8 +53,8 @@ export const TokenSwapResultModal = () => {
           {!success && <h2 className="text-2xl text-success-content font-bold mb-1">SWAP FAILED!</h2>}
 
           {success && <div className="flex flex-col gap-2 text-base-content font-normal text-center leading-tight w-11/12">
-            You've spent {formContext.fromEntry.amount} {formContext.fromEntry.symbol} and got{" "}
-            {swapResult?.amount} {formContext.toEntry.symbol} in your wallet.
+            You've spent {formData.fromEntry.amount} {formData.fromEntry.symbol} and got{" "}
+            {swapResult?.amount} {formData.toEntry.symbol} in your wallet.
           </div>}
           {!success && <div className="flex flex-col gap-2 text-base-content font-normal text-center leading-tight w-11/12">{String(swapResult?.error)}</div>}
 

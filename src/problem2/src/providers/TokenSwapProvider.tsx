@@ -1,34 +1,34 @@
 import { Contract, formatUnits, JsonRpcProvider, parseUnits } from "ethers";
-import { createContext, useContext, useRef, type PropsWithChildren } from 'react';
+import { createContext, useContext, useRef, type PropsWithChildren } from "react";
 
-import type { TokenMetadata } from './TokenListProvider';
+import type { TokenMetadata } from "./TokenListProvider";
 
 const BSC_RPC_URL = "https://bsc-dataseed.binance.org/";
 
 const ROUTER_ABI = [
   "function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts)",
-  "function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts)"
+  "function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts)",
 ];
 
-const FACTORY_ABI = [
-  "function getPair(address tokenA, address tokenB) external view returns (address pair)"
-];
+const FACTORY_ABI = ["function getPair(address tokenA, address tokenB) external view returns (address pair)"];
 
 const PAIR_ABI = [
   "function getReserves() view returns (uint112 reserve0, uint112 reserve1, uint32)",
-  "function token0() view returns (address)"
+  "function token0() view returns (address)",
 ];
 
 const ROUTER_ADDRESS = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
 const FACTORY_ADDRESS = "0xca143ce32fe78f1f7019d7d551a6402fc5350c73"; // PancakeSwap V2 factory
 
 export type TokenSwapResultType = {
+  tokenIn: TokenMetadata | null;
+  tokenOut: TokenMetadata | null;
   amount: number;
   priceImpact: number;
   fee: number;
   realRate: number;
   error?: Error;
-}
+};
 
 type TokenSwapContextType = {
   getQuoteOut: (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountInHuman: string) => Promise<TokenSwapResultType>;
@@ -36,20 +36,21 @@ type TokenSwapContextType = {
   swap: (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountInHuman: string) => Promise<TokenSwapResultType>;
 };
 
-interface TokenSwapProviderProps extends PropsWithChildren {
-}
+interface TokenSwapProviderProps extends PropsWithChildren {}
 
 const DEFAULT_TOKEN_SWAP_RESULT = {
+  tokenIn: null,
+  tokenOut: null,
   amount: 0,
   priceImpact: 0,
   fee: 0,
-  realRate: 0
-}
+  realRate: 0,
+};
 
 const TokenSwapContext = createContext<TokenSwapContextType>({
   getQuoteOut: () => Promise.resolve(DEFAULT_TOKEN_SWAP_RESULT),
   getQuoteIn: () => Promise.resolve(DEFAULT_TOKEN_SWAP_RESULT),
-  swap: () => Promise.resolve(DEFAULT_TOKEN_SWAP_RESULT)
+  swap: () => Promise.resolve(DEFAULT_TOKEN_SWAP_RESULT),
 });
 
 export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
@@ -61,7 +62,11 @@ export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
 
   const fakeErrorCountRef = useRef(0);
 
-  const getQuoteOut = async (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountInHuman: string): Promise<TokenSwapResultType> => {
+  const getQuoteOut = async (
+    tokenIn: TokenMetadata,
+    tokenOut: TokenMetadata,
+    amountInHuman: string
+  ): Promise<TokenSwapResultType> => {
     const provider = providerRef.current;
     const router = routerRef.current;
     const factory = factoryRef.current;
@@ -94,27 +99,33 @@ export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
     }
 
     // Simulate fee-less output (ideal output)
-    const idealOut = amountIn * reserveOut / reserveIn;
+    const idealOut = (amountIn * reserveOut) / reserveIn;
     const idealOutHuman = formatUnits(idealOut, tokenOut.decimals);
 
     // Price impact
-    const priceImpact = (Number(idealOutHuman) - Number(amountOutHuman)) / Number(idealOutHuman) * 100;
+    const priceImpact = ((Number(idealOutHuman) - Number(amountOutHuman)) / Number(idealOutHuman)) * 100;
 
     // Fee calculation
-    const feeAmount = amountIn - amountIn * 9975n / 10000n;
+    const feeAmount = amountIn - (amountIn * 9975n) / 10000n;
     const feeAmountHuman = formatUnits(feeAmount, tokenIn.decimals);
 
     const realRate = Number(amountOutHuman) / Number(amountInHuman);
 
-    return {      
-      priceImpact,      
+    return {
+      tokenIn,
+      tokenOut,
+      priceImpact,
       realRate,
       amount: Number(amountOutHuman),
       fee: Number(feeAmountHuman),
-    }
-  }
+    };
+  };
 
-  const getQuoteIn = async (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountOutHuman: string): Promise<TokenSwapResultType> => {
+  const getQuoteIn = async (
+    tokenIn: TokenMetadata,
+    tokenOut: TokenMetadata,
+    amountOutHuman: string
+  ): Promise<TokenSwapResultType> => {
     const provider = providerRef.current;
     const router = routerRef.current;
     const factory = factoryRef.current;
@@ -146,48 +157,50 @@ export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
     }
 
     // Compute ideal input (no fee, no price impact)
-    const idealIn = amountOut * reserveIn / reserveOut;
+    const idealIn = (amountOut * reserveIn) / reserveOut;
     const idealInHuman = formatUnits(idealIn, tokenIn.decimals);
 
     // Price impact
-    const priceImpact = (Number(amountInHuman) - Number(idealInHuman)) / Number(idealInHuman) * 100;
+    const priceImpact = ((Number(amountInHuman) - Number(idealInHuman)) / Number(idealInHuman)) * 100;
 
     // Fee amount (0.25%)
     const feeMultiplier = 10000n - 9975n; // 25
-    const feeAmount = amountIn * feeMultiplier / 10000n;
+    const feeAmount = (amountIn * feeMultiplier) / 10000n;
     const feeAmountHuman = formatUnits(feeAmount, tokenIn.decimals);
 
     const realRate = Number(amountOutHuman) / Number(amountInHuman);
 
-    return {      
-      priceImpact,      
+    return {
+      tokenIn,
+      tokenOut,
+      priceImpact,
       realRate,
       amount: Number(amountInHuman),
       fee: Number(feeAmountHuman),
-    }
-  }
+    };
+  };
 
-  const swap = async (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountOutHuman: string): Promise<TokenSwapResultType> => {
+  const swap = async (
+    tokenIn: TokenMetadata,
+    tokenOut: TokenMetadata,
+    amountOutHuman: string
+  ): Promise<TokenSwapResultType> => {
     // TODO: actually implementation here
     // ...
 
     ++fakeErrorCountRef.current;
-    if ((fakeErrorCountRef.current % 2) === 0) {
+    if (fakeErrorCountRef.current % 2 === 0) {
       // Simulate 3 seconds wait before error
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      throw new Error('Insufficient balance');
+      throw new Error("Insufficient balance");
     }
 
     // Fake the swap using quote...
     return getQuoteOut(tokenIn, tokenOut, amountOutHuman);
-  }
+  };
 
-  return (
-    <TokenSwapContext.Provider value={{ getQuoteIn, getQuoteOut, swap }}>
-      {children}
-    </TokenSwapContext.Provider>
-  )
+  return <TokenSwapContext.Provider value={{ getQuoteIn, getQuoteOut, swap }}>{children}</TokenSwapContext.Provider>;
 };
 
 export const useTokenSwap = () => useContext(TokenSwapContext);

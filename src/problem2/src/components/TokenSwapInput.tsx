@@ -77,7 +77,6 @@ export const TokenSwapInput = (props: TokenSwapInputProps) => {
         symbol={entry.symbol}
         setSymbol={(symbol) => {
           const result = { symbol, amount: entry.amount, isLoading: false };
-          console.log(result)
           setEntry(result);
         }}
       />
