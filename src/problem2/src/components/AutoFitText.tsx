@@ -10,7 +10,7 @@ interface AutoFitTextProps {
 export const AutoFitText: React.FC<AutoFitTextProps> = ({
   text,
   minFontSize = 10,
-  maxFontSize = 14,
+  maxFontSize = 16,
   className = ''
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);

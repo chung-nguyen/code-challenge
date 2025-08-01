@@ -42,26 +42,30 @@ export const TokenSwapActionPanel = () => {
         priceImpact: 0,
         fee: 0,
         realRate: 0,
-        error: ex as Error
+        error: ex as Error,
       });
     } finally {
       formContext.setIsProcessing(false);
     }
   };
 
-  const isButtonActive = !(
-    formContext.isProcessing ||
-    (!formContext.fromEntry.amount && !formContext.toEntry.amount) ||
-    isLoading
-  );
+  const hasAmountEntry = formContext.fromEntry.amount > 0 && formContext.toEntry.amount > 0;
+  const isButtonActive = !(formContext.isProcessing || !hasAmountEntry || isLoading);
+
+  let buttonLabel = useMemo(() => {
+    if (formContext.isProcessing || formContext.fromEntry.isLoading || formContext.toEntry.isLoading) {
+      return <span className="loading loading-bars loading-xs" />;
+    } else if (hasAmountEntry) {
+      return "Swap";
+    } else {
+      return "Please enter amount";
+    }
+  }, [formContext]);
 
   return (
     <div className="card bg-base-100 w-full shadow-sm text-base-content p-4 gap-2">
       <button className="btn btn-primary" disabled={!isButtonActive} onClick={onActionButtonClicked}>
-        {formContext.isProcessing && <span className="loading loading-bars loading-xs"></span>}
-        {!formContext.isProcessing && (
-          <span>{!formContext.fromEntry.amount && !formContext.toEntry.amount ? "Please enter amount" : "Swap"}</span>
-        )}
+        {buttonLabel}
       </button>
 
       <div className="flex items-center">
@@ -72,13 +76,15 @@ export const TokenSwapActionPanel = () => {
           loading={isLoading}
         />
         <div className="flex-1" />
-        <span>
+        <div className="flex items-center gap-1">
+          Fee
           <FetchedValueLabel
-            className="text-base-content text-right max-w-48"
+            className="text-base-content text-right max-w-32"
             loading={isLoading}
-            value={"Fee " + shortenNumber(formContext.swapFee, 18, 6) + " " + formContext.fromEntry.symbol}
+            value={shortenNumber(formContext.swapFee, 18, 6)}
           />
-        </span>
+          {formContext.fromEntry.symbol}
+        </div>
         <ChevronDown
           className={`cursor-pointer transition-transform duration-300 ${expandDetails ? "rotate-180" : "rotate-0"}`}
           onClick={() => setExpandDetails(!expandDetails)}
