@@ -30,6 +30,7 @@ export const TokenSwapActionPanel = () => {
     try {      
       if (tokenIn && tokenOut && formData.fromEntry.amount > 0) {
         const result = await tokenSwap.swap(tokenIn, tokenOut, String(formData.fromEntry.amount));
+        result.openModal = true;
         formContext.setOpenResultModal(result);
 
         formContext.setFromEntryValues(formData.fromEntry.symbol, 0);
@@ -47,6 +48,7 @@ export const TokenSwapActionPanel = () => {
         priceImpact: 0,
         fee: 0,
         realRate: 0,
+        openModal: true,
         error: ex as Error,
       });
     } finally {

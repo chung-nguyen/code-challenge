@@ -27,6 +27,7 @@ export type TokenSwapResultType = {
   priceImpact: number;
   fee: number;
   realRate: number;
+  openModal?: boolean;
   error?: Error;
 };
 

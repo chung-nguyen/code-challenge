@@ -32,14 +32,14 @@ export type TokenSwapFormDataType = {
 export type TokenSwapFormContextType = {
   formData: TokenSwapFormDataType;
   isProcessing: boolean;
-  openResultModal: TokenSwapResultType | null;
+  swapResult: TokenSwapResultType | null;
   setFromEntryValues: (symbol: string, amount: number) => void;
   setToEntryValues: (symbol: string, amount: number) => void;
   setIsProcessing: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenResultModal: React.Dispatch<React.SetStateAction<TokenSwapResultType | null>>;
 };
 
-const DEFAULT_SWAP_FORM = {
+const DEFAULT_SWAP_CONTEXT = {
   formData: {
     fromEntry: { symbol: "CAKE", amount: 0, isLoading: false },
     toEntry: { symbol: "WBNB", amount: 0, isLoading: false },
@@ -51,14 +51,14 @@ const DEFAULT_SWAP_FORM = {
     feeSaved: 0,
   },
   isProcessing: false,
-  openResultModal: null,
+  swapResult: null,
   setFromEntryValues: () => {},
   setToEntryValues: () => {},
   setIsProcessing: () => {},
   setOpenResultModal: () => {},
 };
 
-const TokenSwapFormContext = createContext<TokenSwapFormContextType>(DEFAULT_SWAP_FORM);
+const TokenSwapFormContext = createContext<TokenSwapFormContextType>(DEFAULT_SWAP_CONTEXT);
 
 export const TokenSwapFormProvider = (props: PropsWithChildren) => {
   const { children } = props;
@@ -76,7 +76,7 @@ export const TokenSwapFormProvider = (props: PropsWithChildren) => {
   // const [feeSaved, setFeeSaved] = useState(DEFAULT_SWAP_FORM.feeSaved);
   const [isProcessing, setIsProcessing] = useState(false);
   const [openResultModal, setOpenResultModal] = useState<TokenSwapResultType | null>(null);
-  const [formData, setFormData] = useState<TokenSwapFormDataType>(DEFAULT_SWAP_FORM.formData);
+  const [formData, setFormData] = useState<TokenSwapFormDataType>(DEFAULT_SWAP_CONTEXT.formData);
 
   const getAmountCallId = useRef(0);
 
@@ -177,7 +177,7 @@ export const TokenSwapFormProvider = (props: PropsWithChildren) => {
       value={{
         formData,
         isProcessing,
-        openResultModal,
+        swapResult: openResultModal,
         setFromEntryValues,
         setToEntryValues,
         setIsProcessing,

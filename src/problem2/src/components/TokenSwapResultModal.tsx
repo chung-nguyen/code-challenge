@@ -6,8 +6,8 @@ import { useTokenSwapForm } from "@/providers/TokenSwapFormProvider";
 export const TokenSwapResultModal = () => {
   const formContext = useTokenSwapForm();
   const formData = formContext.formData;
-  const isOpen = !!formContext.openResultModal;  
-  const swapResult = formContext.openResultModal;
+  const isOpen = formContext.swapResult?.openModal;
+  const swapResult = formContext.swapResult;
   const success = !swapResult?.error;
 
   const [successLottie, setSuccessLottie] = useState<DotLottie | null>(null);
@@ -52,14 +52,27 @@ export const TokenSwapResultModal = () => {
           {success && <h2 className="text-2xl text-success-content font-bold mb-1">SWAP SUCCEEDED!</h2>}
           {!success && <h2 className="text-2xl text-success-content font-bold mb-1">SWAP FAILED!</h2>}
 
-          {success && <div className="flex flex-col gap-2 text-base-content font-normal text-center leading-tight w-11/12">
-            You've spent {formData.fromEntry.amount} {formData.fromEntry.symbol} and got{" "}
-            {swapResult?.amount} {formData.toEntry.symbol} in your wallet.
-          </div>}
-          {!success && <div className="flex flex-col gap-2 text-base-content font-normal text-center leading-tight w-11/12">{String(swapResult?.error)}</div>}
+          {success && (
+            <div className="flex flex-col gap-2 text-base-content font-normal text-center leading-tight w-11/12">
+              You've spent {formData.fromEntry.amount} {formData.fromEntry.symbol} and got {swapResult?.amount}{" "}
+              {formData.toEntry.symbol} in your wallet.
+            </div>
+          )}
+          {!success && (
+            <div className="flex flex-col gap-2 text-base-content font-normal text-center leading-tight w-11/12">
+              {String(swapResult?.error)}
+            </div>
+          )}
 
           <div className="flex flex-col gap-2 w-8/10 text-lg mt-2">
-            <button className="btn btn-success text-base" onClick={() => formContext.setOpenResultModal(null)}>
+            <button
+              className="btn btn-success text-base"
+              onClick={() => {
+                if (swapResult) {
+                  formContext.setOpenResultModal({ ...swapResult, openModal: false });
+                }
+              }}
+            >
               OK
             </button>
           </div>
