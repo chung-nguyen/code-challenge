@@ -22,10 +22,10 @@ export const TokenSwapInput = (props: TokenSwapInputProps) => {
       value = parseFloat(input);
     } catch (ex) {      
       value = entry.amount;
-    }    
-
+    }
+    
     let amountInputValue = '';
-    if (value > 0) {
+    if (value > 0 && isFinite(value)) {
       amountInputValue = String(value);
     } else {
       value = 0;
@@ -37,6 +37,13 @@ export const TokenSwapInput = (props: TokenSwapInputProps) => {
       } else {
         amountInputValue += '.';
       }
+    }
+
+    // Revert if input cannot be parsed by smart contract
+    const match = String(value).match(/^(-?)([0-9]*)\.?([0-9]*)$/);
+    if (!(match && (match[2].length + match[3].length) > 0)) {
+      value = parseFloat(amountInput);
+      amountInputValue = amountInput;
     }
 
     setAmountInput(amountInputValue);

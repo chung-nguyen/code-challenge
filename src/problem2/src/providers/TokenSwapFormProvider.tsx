@@ -14,8 +14,11 @@ export type TokenSwapFormContextType = {
   fromEntry: TokenSwapFormEntryType;
   toEntry: TokenSwapFormEntryType;
   nativeToken: string;
+  slipTolerance: number;
   exchangeRate: number;
   swapFee: number;
+  feeSaved: number;
+  priceImpact: number;
   setFromEntryValues: (symbol: string, amount: number) => void;
   setToEntryValues: (symbol: string, amount: number) => void;
 };
@@ -24,8 +27,11 @@ const DEFAULT_SWAP_FORM = {
   fromEntry: { symbol: "CAKE", amount: 0, isLoading: false },
   toEntry: { symbol: "WBNB", amount: 0, isLoading: false },
   nativeToken: "BNB",
+  slipTolerance: 0.5,
   exchangeRate: 0,
   swapFee: 0,
+  priceImpact: 0,
+  feeSaved: 0,
   setFromEntryValues: () => {},
   setToEntryValues: () => {},
 };
@@ -41,8 +47,11 @@ export const TokenSwapFormProvider = (props: PropsWithChildren) => {
   const [fromEntry, setFromEntry] = useState<TokenSwapFormEntryType>(DEFAULT_SWAP_FORM.fromEntry);
   const [toEntry, setToEntry] = useState<TokenSwapFormEntryType>(DEFAULT_SWAP_FORM.toEntry);
   const [nativeToken, setNativeToken] = useState(DEFAULT_SWAP_FORM.nativeToken);
+  const [slipTolerance, setSlipTolerance] = useState(DEFAULT_SWAP_FORM.slipTolerance);
   const [exchangeRate, setExchangeRate] = useState(DEFAULT_SWAP_FORM.exchangeRate);
   const [swapFee, setSwapFee] = useState(DEFAULT_SWAP_FORM.swapFee);
+  const [priceImpact, setPriceImpact] = useState(DEFAULT_SWAP_FORM.priceImpact);
+  const [feeSaved, setFeeSaved] = useState(DEFAULT_SWAP_FORM.feeSaved);
 
   const getAmountCallId = useRef(0);
 
@@ -58,11 +67,19 @@ export const TokenSwapFormProvider = (props: PropsWithChildren) => {
           if (currentCallId === getAmountCallId.current) {
             setToEntry({ symbol: toEntry.symbol, amount: result.amount, isLoading: false });
           }
+
+          setExchangeRate(result.realRate);
+          setSwapFee(result.fee);
+          setPriceImpact(result.priceImpact);
         } else if (amountOut > 0) {
           const result = await tokenSwap.getQuoteIn(tokenIn, tokenOut, String(amountOut));
           if (currentCallId === getAmountCallId.current) {
             setFromEntry({ symbol: fromEntry.symbol, amount: result.amount, isLoading: false });
           }
+
+          setExchangeRate(result.realRate);
+          setSwapFee(result.fee);
+          setPriceImpact(result.priceImpact);
         }
       }
     },
@@ -74,24 +91,32 @@ export const TokenSwapFormProvider = (props: PropsWithChildren) => {
   const setFromEntryValues = async (symbol: string, amount: number) => {
     setFromEntry({ symbol, amount, isLoading: false });
     setToEntry({ symbol: toEntry.symbol, amount: 0, isLoading: amount > 0 });
-    if (amount > 0) {
-      const currentCallId = ++getAmountCallId.current;
+    const currentCallId = ++getAmountCallId.current;
+    if (amount > 0) {      
       debouncedGetAmount(currentCallId, symbol, toEntry.symbol, amount, 0);
+    } else {
+      setExchangeRate(0);
+      setSwapFee(0);
+      setPriceImpact(0);
     }
   };
 
   const setToEntryValues = (symbol: string, amount: number) => {
     setToEntry({ symbol, amount, isLoading: false });
     setFromEntry({ symbol: fromEntry.symbol, amount: 0, isLoading: amount > 0 });
-    if (amount > 0) {
-      const currentCallId = ++getAmountCallId.current;
+    const currentCallId = ++getAmountCallId.current;
+    if (amount > 0) {      
       debouncedGetAmount(currentCallId, fromEntry.symbol, symbol, 0, amount);
+    } else {
+      setExchangeRate(0);
+      setSwapFee(0);
+      setPriceImpact(0);
     }
   };
 
   return (
     <TokenSwapFormContext.Provider
-      value={{ fromEntry, toEntry, nativeToken, exchangeRate, swapFee, setFromEntryValues, setToEntryValues }}
+      value={{ fromEntry, toEntry, nativeToken, exchangeRate, swapFee, priceImpact, slipTolerance, feeSaved, setFromEntryValues, setToEntryValues }}
     >
       {children}
     </TokenSwapFormContext.Provider>

@@ -1,4 +1,4 @@
-import { Contract, formatUnits, JsonRpcProvider, parseEther, parseUnits } from "ethers";
+import { Contract, formatUnits, JsonRpcProvider, parseUnits } from "ethers";
 import { createContext, useContext, useRef, type PropsWithChildren } from 'react';
 
 import type { TokenMetadata } from './TokenListProvider';
