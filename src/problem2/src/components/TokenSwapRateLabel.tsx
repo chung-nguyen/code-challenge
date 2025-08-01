@@ -15,8 +15,10 @@ export const TokenSwapRateLabel = (props: TokenSwapRateLabelProps) => {
         <RefreshCw />
         <span>1 {fromSymbol}</span>
         <ArrowLeftRight />
-        <span>{exchangeRate} {toSymbol}</span>
+        <span>
+          {exchangeRate} {toSymbol}
+        </span>
       </div>
     </div>
-  )
-}
+  );
+};

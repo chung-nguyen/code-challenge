@@ -1,10 +1,10 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown } from "lucide-react";
 
 import { useTokenList } from "@/providers/TokenListProvider";
 
 type TokenSelectButtonProps = {
   symbol: string;
-  setSymbol: React.Dispatch<React.SetStateAction<string>>;
+  setSymbol: (symbol: string) => void;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export const TokenSelectButton = (props: TokenSelectButtonProps) => {
@@ -28,5 +28,5 @@ export const TokenSelectButton = (props: TokenSelectButtonProps) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

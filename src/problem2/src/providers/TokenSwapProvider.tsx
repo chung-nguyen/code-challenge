@@ -1,4 +1,4 @@
-import { Contract, formatUnits, JsonRpcProvider } from "ethers";
+import { Contract, formatUnits, JsonRpcProvider, parseEther, parseUnits } from "ethers";
 import { createContext, useContext, useRef, type PropsWithChildren } from 'react';
 
 import type { TokenMetadata } from './TokenListProvider';
@@ -6,7 +6,8 @@ import type { TokenMetadata } from './TokenListProvider';
 const BSC_RPC_URL = "https://bsc-dataseed.binance.org/";
 
 const ROUTER_ABI = [
-  "function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts)"
+  "function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts)",
+  "function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts)"
 ];
 
 const FACTORY_ABI = [
@@ -21,17 +22,31 @@ const PAIR_ABI = [
 const ROUTER_ADDRESS = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
 const FACTORY_ADDRESS = "0xca143ce32fe78f1f7019d7d551a6402fc5350c73"; // PancakeSwap V2 factory
 
+type TokenSwapResultType = {
+  amount: number;
+  priceImpact: number;
+  fee: number;
+  realRate: number;
+}
+
 type TokenSwapContextType = {
-  getQuoteOut: (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountIn: bigint) => any;
-  getQuoteIn: (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountIn: bigint) => any;
+  getQuoteOut: (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountInHuman: string) => Promise<TokenSwapResultType>;
+  getQuoteIn: (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountOutHuman: string) => Promise<TokenSwapResultType>;
 };
 
 interface TokenSwapProviderProps extends PropsWithChildren {
 }
 
+const DEFAULT_TOKEN_SWAP_RESULT = {
+  amount: 0,
+  priceImpact: 0,
+  fee: 0,
+  realRate: 0
+}
+
 const TokenSwapContext = createContext<TokenSwapContextType>({
-  getQuoteOut: () => { },
-  getQuoteIn: () => { },
+  getQuoteOut: () => Promise.resolve(DEFAULT_TOKEN_SWAP_RESULT),
+  getQuoteIn: () => Promise.resolve(DEFAULT_TOKEN_SWAP_RESULT),
 });
 
 export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
@@ -41,13 +56,15 @@ export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
   const routerRef = useRef(new Contract(ROUTER_ADDRESS, ROUTER_ABI, providerRef.current));
   const factoryRef = useRef(new Contract(FACTORY_ADDRESS, FACTORY_ABI, providerRef.current));
 
-  const getQuoteOut = async (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountIn: bigint) => {
+  const getQuoteOut = async (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountInHuman: string): Promise<TokenSwapResultType> => {
     const provider = providerRef.current;
     const router = routerRef.current;
     const factory = factoryRef.current;
+    const tokenInAddress = tokenIn.address.toLowerCase();
+    const tokenOutAddress = tokenOut.address.toLowerCase();
 
-    const path = [tokenIn.address, tokenOut.address];
-    const amountInHuman = formatUnits(amountIn, tokenIn.decimals);
+    const path = [tokenInAddress, tokenOutAddress];
+    const amountIn = parseUnits(String(amountInHuman), tokenIn.decimals);
 
     // Get quoted output
     const amounts = await router.getAmountsOut(amountIn, path);
@@ -55,7 +72,7 @@ export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
     const amountOutHuman = formatUnits(amountOut, tokenOut.decimals);
 
     // Get pool reserves
-    const pairAddress = await factory.getPair(tokenIn, tokenOut);
+    const pairAddress = await factory.getPair(tokenInAddress, tokenOutAddress);
     const pair = new Contract(pairAddress, PAIR_ABI, provider);
     const token0 = await pair.token0();
 
@@ -63,7 +80,7 @@ export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
 
     // Normalize reserves
     let reserveIn, reserveOut;
-    if (tokenIn.address.toLowerCase() === token0.toLowerCase()) {
+    if (tokenInAddress === token0.toLowerCase()) {
       reserveIn = reserve0;
       reserveOut = reserve1;
     } else {
@@ -80,24 +97,27 @@ export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
 
     // Fee calculation
     const feeAmount = amountIn - amountIn * 9975n / 10000n;
+    const feeAmountHuman = formatUnits(feeAmount, tokenIn.decimals);
 
     const realRate = Number(amountOutHuman) / Number(amountInHuman);
 
-    return {
-      amountOut,
-      priceImpact,
-      feeAmount,
-      realRate
+    return {      
+      priceImpact,      
+      realRate,
+      amount: Number(amountOutHuman),
+      fee: Number(feeAmountHuman),
     }
   }
 
-  const getQuoteIn = async (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountOut: bigint) => {
+  const getQuoteIn = async (tokenIn: TokenMetadata, tokenOut: TokenMetadata, amountOutHuman: string): Promise<TokenSwapResultType> => {
     const provider = providerRef.current;
     const router = routerRef.current;
     const factory = factoryRef.current;
+    const tokenInAddress = tokenIn.address.toLowerCase();
+    const tokenOutAddress = tokenOut.address.toLowerCase();
 
-    const path = [tokenIn.address, tokenOut.address];
-    const amountOutHuman = formatUnits(amountOut, tokenOut.decimals);
+    const path = [tokenInAddress, tokenOutAddress];
+    const amountOut = parseUnits(amountOutHuman, tokenOut.decimals);
 
     // Get required input from router
     const amounts = await router.getAmountsIn(amountOut, path);
@@ -105,14 +125,14 @@ export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
     const amountInHuman = formatUnits(amountIn, tokenIn.decimals);
 
     // Get pair reserves
-    const pairAddress = await factory.getPair(tokenIn, tokenOut);
+    const pairAddress = await factory.getPair(tokenInAddress, tokenOutAddress);
     const pair = new Contract(pairAddress, PAIR_ABI, provider);
     const token0 = await pair.token0();
     const [reserve0, reserve1] = await pair.getReserves();
 
     // Normalize reserves
     let reserveIn, reserveOut;
-    if (tokenIn.address.toLowerCase() === token0.toLowerCase()) {
+    if (tokenInAddress === token0.toLowerCase()) {
       reserveIn = reserve0;
       reserveOut = reserve1;
     } else {
@@ -130,14 +150,15 @@ export const TokenSwapProvider = (props: TokenSwapProviderProps) => {
     // Fee amount (0.25%)
     const feeMultiplier = 10000n - 9975n; // 25
     const feeAmount = amountIn * feeMultiplier / 10000n;
+    const feeAmountHuman = formatUnits(feeAmount, tokenIn.decimals);
 
     const realRate = Number(amountOutHuman) / Number(amountInHuman);
 
-    return {
-      amountIn,
-      priceImpact,
-      feeAmount,
-      realRate
+    return {      
+      priceImpact,      
+      realRate,
+      amount: Number(amountInHuman),
+      fee: Number(feeAmountHuman),
     }
   }
 
