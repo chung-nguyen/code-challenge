@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { motion } from "motion/react";
 
 import { useTokenSwapForm } from "@/providers/TokenSwapFormProvider";
 
@@ -32,7 +33,7 @@ export const TokenSwapActionPanel = () => {
     const tokenIn = tokensList.tokens.find((tk) => tk.symbol === formData.fromEntry.symbol) || null;
     const tokenOut = tokensList.tokens.find((tk) => tk.symbol === formData.toEntry.symbol) || null;
 
-    try {      
+    try {
       if (tokenIn && tokenOut && formData.fromEntry.amount > 0) {
         const result = await tokenSwap.swap(tokenIn, tokenOut, String(formData.fromEntry.amount));
         result.openModal = true;
@@ -93,7 +94,7 @@ export const TokenSwapActionPanel = () => {
           loading={isLoading}
           lastEntryTime={formData.lastEntryTime}
           refreshTime={REFRESH_TIME}
-          onRefresh={() => formContext.refreshQuote()}          
+          onRefresh={() => formContext.refreshQuote()}
         />
         <div className="flex-1" />
         <div className="flex items-center gap-1">
@@ -111,7 +112,11 @@ export const TokenSwapActionPanel = () => {
         />
       </div>
 
-      <div className={`overflow-hidden transition-all duration-300 ${expandDetails ? "max-h-72" : "max-h-0"}`}>
+      <motion.div
+        layout
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}        
+        className={`overflow-hidden  ${expandDetails ? "max-h-72" : "max-h-0"}`}
+      >
         <div className="grid gap-2 w-full">
           <div className="grid grid-cols-2 gap-4 p-2 bg-base-100 rounded-lg shadow">
             <span className="font-semibold text-base-content">Minimum received</span>
@@ -142,7 +147,7 @@ export const TokenSwapActionPanel = () => {
             />
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

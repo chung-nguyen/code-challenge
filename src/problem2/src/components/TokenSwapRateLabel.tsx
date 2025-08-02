@@ -1,5 +1,6 @@
 import { ArrowLeftRight } from "lucide-react";
 import { useState } from "react";
+import { motion } from "motion/react";
 
 import { FetchedValueLabel } from "./FetchedValueLabel";
 import { CircularRefreshButton } from "./CircularRefreshButton";
@@ -31,23 +32,31 @@ export const TokenSwapRateLabel = (props: TokenSwapRateLabelProps) => {
       <div className="flex flex-row gap-1 items-center">
         <CircularRefreshButton startTime={lastEntryTime} totalTime={refreshTime} radius={18} onClick={onRefresh} />
         <div className="flex flex-row gap-1 items-center">
-          <span className={`${isReversed ? "order-3" : "order-1"}`}>
+          <motion.div
+            layout
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className={`${isReversed ? "order-3" : "order-1"}`}
+          >
             <FetchedValueLabel
               className="text-base max-w-32"
               loading={loading}
               value={shortenNumber(fromValue, 18, 6) + " " + fromSymbol}
             />
-          </span>
+          </motion.div>
           <div className="cursor-pointer order-2" onClick={() => setIsReversed(!isReversed)}>
             <ArrowLeftRight className={`transition-transform duration-300 ${isReversed ? "rotate-180" : "rotate-0"}`} />
           </div>
-          <span className={`${isReversed ? "order-1" : "order-3"}`}>
+          <motion.div
+            layout
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className={`${isReversed ? "order-1" : "order-3"}`}
+          >
             <FetchedValueLabel
               className="text-base max-w-32"
               loading={loading}
               value={shortenNumber(toValue, 18, 6) + " " + toSymbol}
             />
-          </span>
+          </motion.div>
         </div>
       </div>
     </div>
