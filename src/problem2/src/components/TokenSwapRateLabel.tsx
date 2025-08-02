@@ -1,11 +1,14 @@
 import { ArrowLeftRight } from "lucide-react";
+import { useState } from "react";
+
 import { FetchedValueLabel } from "./FetchedValueLabel";
 import { CircularRefreshButton } from "./CircularRefreshButton";
+import { shortenNumber } from "@/lib/Helper";
 
 type TokenSwapRateLabelProps = {
   fromSymbol: string;
   toSymbol: string;
-  exchangeRate: string | number;
+  exchangeRate: number;
   loading: boolean;
   lastEntryTime: number;
   refreshTime: number;
@@ -18,14 +21,34 @@ type TokenSwapRateLabelProps = {
 export const TokenSwapRateLabel = (props: TokenSwapRateLabelProps) => {
   const { fromSymbol, toSymbol, exchangeRate, loading, lastEntryTime, refreshTime, onRefresh, ...rest } = props;
 
+  const [isReversed, setIsReversed] = useState(false);
+
+  const fromValue = !exchangeRate ? 0 : isReversed ? 1 / Number(exchangeRate) : 1;
+  const toValue = !exchangeRate ? 0 : isReversed ? 1 : exchangeRate;
+
   return (
     <div {...rest}>
       <div className="flex flex-row gap-1 items-center">
         <CircularRefreshButton startTime={lastEntryTime} totalTime={refreshTime} radius={18} onClick={onRefresh} />
-        
-        <FetchedValueLabel className="text-base max-w-2" loading={loading} value={1} /> {fromSymbol}
-        <ArrowLeftRight />
-        <FetchedValueLabel className="text-base max-w-32" loading={loading} value={exchangeRate} /> {toSymbol}
+        <div className="flex flex-row gap-1 items-center">
+          <span className={`${isReversed ? "order-3" : "order-1"}`}>
+            <FetchedValueLabel
+              className="text-base max-w-32"
+              loading={loading}
+              value={shortenNumber(fromValue, 18, 6) + " " + fromSymbol}
+            />
+          </span>
+          <div className="cursor-pointer order-2" onClick={() => setIsReversed(!isReversed)}>
+            <ArrowLeftRight className={`transition-transform duration-300 ${isReversed ? "rotate-180" : "rotate-0"}`} />
+          </div>
+          <span className={`${isReversed ? "order-1" : "order-3"}`}>
+            <FetchedValueLabel
+              className="text-base max-w-32"
+              loading={loading}
+              value={shortenNumber(toValue, 18, 6) + " " + toSymbol}
+            />
+          </span>
+        </div>
       </div>
     </div>
   );

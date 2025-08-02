@@ -89,7 +89,7 @@ export const TokenSwapActionPanel = () => {
         <TokenSwapRateLabel
           fromSymbol={formData.fromEntry.symbol}
           toSymbol={formData.toEntry.symbol}
-          exchangeRate={shortenNumber(formData.exchangeRate, 18, 6)}
+          exchangeRate={formData.exchangeRate}
           loading={isLoading}
           lastEntryTime={formData.lastEntryTime}
           refreshTime={REFRESH_TIME}
