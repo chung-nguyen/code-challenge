@@ -9,6 +9,8 @@ import { shortenNumber } from "@/lib/Helper";
 import { useTokenSwap } from "@/providers/TokenSwapProvider";
 import { useTokenList } from "@/providers/TokenListProvider";
 
+const REFRESH_TIME = 3 * 1000;
+
 /**
  * This is the bottom panel of the 2 main panels in this demo.
  */
@@ -89,6 +91,9 @@ export const TokenSwapActionPanel = () => {
           toSymbol={formData.toEntry.symbol}
           exchangeRate={shortenNumber(formData.exchangeRate, 18, 6)}
           loading={isLoading}
+          lastEntryTime={formData.lastEntryTime}
+          refreshTime={REFRESH_TIME}
+          onRefresh={() => formContext.refreshQuote()}          
         />
         <div className="flex-1" />
         <div className="flex items-center gap-1">
