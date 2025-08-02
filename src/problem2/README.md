@@ -1,7 +1,7 @@
 # Problem 2: Fancy Form
 
 ## Demo Video
-https://drive.google.com/file/d/1e-jvZ7FXPtY04ocG_kjNf5d5WhM2EDoI/view?usp=sharing
+▶️ [Watch the demo video on Google Drive](https://drive.google.com/file/d/1wXwUiMj-QUsAy0pewSEPZ2kWURMMQh_t/view?usp=drive_link)
 
 ## How to run
 + Run `npm install` to install all necessary node modules.
@@ -16,7 +16,7 @@ https://drive.google.com/file/d/1e-jvZ7FXPtY04ocG_kjNf5d5WhM2EDoI/view?usp=shari
 ## Tech stacks
 
 ### Vite + ReactJS Typescript
-Not because of the bonus points but I usually used Vite + ReactJS for projects that are not SEO-critical, ie. an Admin Dashboard, a Facial-Recognition attendancy app for meeting. I am also used to working with Typescript because it is very hard to trace typos and type errors using purely JS. This will require less testing needed to be done and is critical for financial related apps. Vite React Typescript also compiles typescript pretty fast and well integrated with TailwindCSS.
+Not because of the bonus points but I usually used Vite + ReactJS for projects that are not SEO-critical, ie. an Admin Dashboard, a Facial-Recognition attendancy app for meeting. I also prefer working with Typescript because it is very hard to trace typos and type errors using purely JS. This will require less testing needed to be done and is mandatory for financial related apps. Vite React Typescript also compiles typescript pretty fast and well integrated with TailwindCSS.
 
 For more SEO-critical project I actually prefer NextJS.
 
@@ -46,4 +46,4 @@ At first, I wanted to use QuoterV2 to get more precise quotation but I could not
 ### Debounced
 When user inputs amount, it triggers the quote debounced function that throttles the function calls from too fast inputs. I also added `callId` to the fetch coroutine to only accept the latest fetch call because `clearTimeout` does not stop the old fetches.
 
-If it was the regular `fetch` calls, I could have used `AbortController` to abandon the old process. It was smartcontract RPC call but I think by creating a custom RPC provider, I can abort a smartcontract call in the middle but it will take some time to improve it.
+If it was the regular `fetch` calls, I could have used `AbortController` to abandon the old process. Because it was smart contract call, it requires some effort to abort the execution properly. I think I can improve this by creating a custom RPC provider.
